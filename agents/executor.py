@@ -9,9 +9,15 @@ TOOL_MAP = {
     "get_news": get_news
 }
 
-def executor_agent(plan):
+def executor_agent(state: dict):
+    plan = state.get("plan", {"steps": []})
     results = []
     for step in plan["steps"]:
-        tool_fn = TOOL_MAP[step["tool"]]
-        results.append(tool_fn(**step["input"]))
-    return results
+        tool_name = step["tool"]
+        if tool_name in TOOL_MAP:
+            tool_fn = TOOL_MAP[tool_name]
+            results.append({
+                "tool": tool_name,
+                "output": tool_fn(**step["input"])
+            })
+    return {"data": results}
